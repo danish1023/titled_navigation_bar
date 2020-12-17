@@ -68,48 +68,50 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
     activeColor = widget.activeColor ?? Theme.of(context).indicatorColor;
 
     return Container(
-      height: BAR_HEIGHT + MediaQuery.of(context).viewPadding.bottom,
-      width: width,
       decoration: BoxDecoration(
-        color: widget.inactiveStripColor ?? Theme.of(context).cardColor,
+        color: widget.inactiveStripColor,
         boxShadow: widget.enableShadow
             ? [
-                BoxShadow(color: Colors.black12, blurRadius: 10),
+                BoxShadow(color: Colors.grey[100], blurRadius: 10),
               ]
             : null,
       ),
-      child: Stack(
-        overflow: Overflow.visible,
-        children: <Widget>[
-          Positioned(
-            top: INDICATOR_HEIGHT,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: items.map((item) {
-                var index = items.indexOf(item);
-                return GestureDetector(
-                  onTap: () => _select(index),
-                  child: _buildItemWidget(item, index == widget.currentIndex),
-                );
-              }).toList(),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            width: width,
-            child: AnimatedAlign(
-              alignment:
-                  Alignment(_getIndicatorPosition(widget.currentIndex), 0),
-              curve: curve,
-              duration: duration,
-              child: Container(
-                color: widget.indicatorColor ?? activeColor,
-                width: width / items.length,
-                height: INDICATOR_HEIGHT,
+      child: Container(
+        height: BAR_HEIGHT,
+        width: width,
+        child: Stack(
+          overflow: Overflow.visible,
+          children: <Widget>[
+            Positioned(
+              top: INDICATOR_HEIGHT,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: items.map((item) {
+                  var index = items.indexOf(item);
+                  return GestureDetector(
+                    onTap: () => _select(index),
+                    child: _buildItemWidget(item, index == widget.currentIndex),
+                  );
+                }).toList(),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              top: 0,
+              width: width,
+              child: AnimatedAlign(
+                alignment:
+                    Alignment(_getIndicatorPosition(widget.currentIndex), 0),
+                curve: curve,
+                duration: duration,
+                child: Container(
+                  color: widget.indicatorColor ?? activeColor,
+                  width: width / items.length,
+                  height: INDICATOR_HEIGHT,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -122,9 +124,38 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
   }
 
   Widget _buildIcon(TitledNavigationBarItem item) {
+    var itemSize = 24.0;
+    if(item.icon == Icons.add_box_rounded){
+      itemSize = 30.0;
+    }
     return Icon(
       item.icon,
       color: reverse ? widget.inactiveColor : activeColor,
+      size: itemSize,
+    );
+  }
+
+  Widget _buildIcon2Modified(TitledNavigationBarItem item) {
+    var itemColor = widget.inactiveColor;
+    var itemSize = 24.0;
+    if(reverse){
+      itemColor = widget.activeColor;
+    }
+    if(item.icon == Icons.add_box_rounded){
+      itemColor = widget.activeColor;
+      itemSize = 30.0;
+    }
+    return Icon(
+      item.icon,
+      color: itemColor,
+      size: itemSize,
+    );
+  }
+
+  Widget _buildIcon2(TitledNavigationBarItem item) {
+    return Icon(
+      item.icon,
+      color: reverse ? activeColor : widget.inactiveColor,
     );
   }
 
@@ -147,12 +178,12 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
             opacity: isSelected ? 0.0 : 1.0,
             duration: duration,
             curve: curve,
-            child: reverse ? _buildIcon(item) : _buildText(item),
+            child: reverse ? _buildIcon(item) : _buildIcon2Modified(item),
           ),
           AnimatedAlign(
             duration: duration,
             alignment: isSelected ? Alignment.center : Alignment(0, 5.2),
-            child: reverse ? _buildText(item) : _buildIcon(item),
+            child: reverse ? _buildIcon2Modified(item) : _buildIcon(item),
           ),
         ],
       ),
